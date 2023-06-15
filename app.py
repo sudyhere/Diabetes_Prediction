@@ -13,8 +13,69 @@ def home():
     return render_template('predict.html')
 
 
-@app.route('/predict_api', methods=['POST'])
-def predict_api():
+# @app.route('/predict_api', methods=['POST'])
+# def predict_api():
+#     def encoder_smoking(label):
+#         if label == 'Never':
+#             return 0
+#         elif label == 'Former':
+#             return 1
+#         else:
+#             return 2
+
+#     def encode_gender(label):
+#         if label == 'Female':
+#             return 0
+#         elif label == 'Male':
+#             return 1
+#         else:
+#             return 2
+
+#     def encode_heart_disease(label):
+#         if label == 'No':
+#             return 0
+#         else:
+#             return 1
+
+#     def encode_hypertension(label):
+#         if label == 'No':
+#             return 0
+#         else:
+#             return 1
+
+#     data = request.json['data']
+#     print(data)
+
+#     # Extract values from data dictionary
+#     gender = data['gender']
+#     age = data['age']
+#     hypertension = data['hypertension']
+#     heart_disease = data['heart_disease']
+#     smoking_history = data['smoking_history']
+#     bmi = data['bmi']
+#     HbA1c_level = data['HbA1c_level']
+#     blood_glucose_level = data['blood_glucose_level']
+
+#     # Apply label encoding
+#     gender = encode_gender(gender)
+#     hypertension = encode_hypertension(hypertension)
+#     heart_disease = encode_heart_disease(heart_disease)
+#     smoking_history = encoder_smoking(smoking_history)
+
+#     # Create input array
+#     input_data = np.array([gender, age, hypertension, heart_disease, smoking_history, bmi, HbA1c_level, blood_glucose_level])
+
+#     input_data = input_data.reshape(1, -1)  # Reshape the data
+
+#     output = regmodel.predict(input_data)
+#     print(output)
+#     output = output.tolist()  # Convert ndarray to list
+#     return jsonify(output)
+
+
+@app.route('/predict', methods=['POST'])
+
+def predict():
     def encoder_smoking(label):
         if label == 'Never':
             return 0
@@ -43,18 +104,17 @@ def predict_api():
         else:
             return 1
 
-    data = request.json['data']
-    print(data)
+    data = request.form
 
-    # Extract values from data dictionary
+    # Extract values from form data
     gender = data['gender']
-    age = data['age']
+    age = int(data['age'])
     hypertension = data['hypertension']
-    heart_disease = data['heart_disease']
-    smoking_history = data['smoking_history']
-    bmi = data['bmi']
-    HbA1c_level = data['HbA1c_level']
-    blood_glucose_level = data['blood_glucose_level']
+    heart_disease = data['heart-disease']
+    smoking_history = data['smoking-history']
+    bmi = float(data['bmi'])
+    HbA1c_level = float(data['hba1c-level'])
+    blood_glucose_level = float(data['blood-glucose-level'])
 
     # Apply label encoding
     gender = encode_gender(gender)
@@ -67,10 +127,14 @@ def predict_api():
 
     input_data = input_data.reshape(1, -1)  # Reshape the data
 
+    results = ""
+
     output = regmodel.predict(input_data)
-    print(output)
-    output = output.tolist()  # Convert ndarray to list
-    return jsonify(output)
+    if output[0] == 0:
+        results = "Low" 
+    else:
+        results = "High"
+    return render_template("predict.html", prediction_text="Your chances of having diabetes is "+results)
 
 
 if __name__ == '__main__':
